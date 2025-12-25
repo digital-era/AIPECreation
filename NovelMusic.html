@@ -190,6 +190,34 @@
             // Get DOM elements
             const musicListEl = document.getElementById('music-list');
             const playerContentEl = document.getElementById('player-content');
+
+            		// 全局代理开关：设置为 true 开启代理，false 使用原生链接
+		var gitproxy = true; 
+		
+		// 替换为你刚才部署的 Cloudflare Worker 地址 (末尾不要带斜杠)
+		const PROXY_BASE_URL = "https://githubproxy.aivibeinvest.com"; 
+		
+		/**
+		 * 通用地址生成函数
+		 * @param {string} filename - 文件名
+		 * @returns {string} 最终的请求 URL
+		 */
+		function getResourceUrl(filename) {
+		    // 基础路径结构: User/Repo/Branch/File
+		    const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
+		    
+		    let finalUrl;
+		    if (typeof gitproxy !== 'undefined' && gitproxy === true) {
+		        // 走代理: https://proxy.com/User/Repo/Branch/File
+		        finalUrl = `${PROXY_BASE_URL}/${filePath}`;
+		    } else {
+		        // 走原生: https://raw.githubusercontent.com/User/Repo/Branch/File
+		        finalUrl = `https://raw.githubusercontent.com/${filePath}`;
+		    }
+		    
+		    // 添加时间戳防止缓存
+		    return `${finalUrl}?t=${Date.now()}`;
+		}
             
             // --- KEY CHANGE 1: Create a mapping from URL param to Chinese title in filename ---
             const novelTitleMap = {
@@ -265,7 +293,9 @@
 
             async function fetchDirectoryContents(directory) {
                 try {
-                    const response = await fetch(API_BASE_URL + directory);
+                    const url = getResourceUrl(API_BASE_URL + directory);
+                    //const response = await fetch(API_BASE_URL + directory);
+                    const response = await fetch(url);
                     if (!response.ok) throw new Error(`GitHub API error! status: ${response.status}`);
                     const data = await response.json();
                     return data.filter(item => item.name.toLowerCase().endsWith('.mp3') || item.name.toLowerCase().endsWith('.mp4'));
@@ -285,7 +315,9 @@
 
                 let contentHtml = '';
                 for (const dir of directoriesToFetch) {
-                    const files = await fetchDirectoryContents(dir.path);
+                    const url = getResourceUrl(dir.path);
+                    //const files = await fetchDirectoryContents(dir.path);
+                    const files = await fetchDirectoryContents(url);
                     if (files.length > 0) {
                         contentHtml += `<li class="folder-title">${dir.name}</li>`;
                         files.forEach(file => {
