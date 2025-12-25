@@ -183,6 +183,34 @@
         //const DATA_PATH = `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@main/AIMillenniumLove`;
         //const DATA_TITLE_PATH = `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@main/AIMillenniumLove/AIMillenniumLoveTitle.md`;
 
+        		// 全局代理开关：设置为 true 开启代理，false 使用原生链接
+		var gitproxy = true; 
+		
+		// 替换为你刚才部署的 Cloudflare Worker 地址 (末尾不要带斜杠)
+		const PROXY_BASE_URL = "https://githubproxy.aivibeinvest.com"; 
+		
+		/**
+		 * 通用地址生成函数
+		 * @param {string} filename - 文件名
+		 * @returns {string} 最终的请求 URL
+		 */
+		function getResourceUrl(filename) {
+		    // 基础路径结构: User/Repo/Branch/File
+		    const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
+		    
+		    let finalUrl;
+		    if (typeof gitproxy !== 'undefined' && gitproxy === true) {
+		        // 走代理: https://proxy.com/User/Repo/Branch/File
+		        finalUrl = `${PROXY_BASE_URL}/${filePath}`;
+		    } else {
+		        // 走原生: https://raw.githubusercontent.com/User/Repo/Branch/File
+		        finalUrl = `https://raw.githubusercontent.com/${filePath}`;
+		    }
+		    
+		    // 添加时间戳防止缓存
+		    return `${finalUrl}?t=${Date.now()}`;
+		}
+
         /**
          * 自定义函数：将中文数字字符串转换为阿拉伯数字。
          */
@@ -214,7 +242,9 @@
          */
         async function generateNovelConfig() {
             try {
-                const response = await fetch(DATA_TITLE_PATH);
+                const url = getResourceUrl(GUARDIAN_CONFIG[key].file);
+                //const response = await fetch(DATA_TITLE_PATH);
+                const response = await fetch(url);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -316,7 +346,9 @@
                 mainContentEl.scrollTop = 0; 
 
                 try {
-                    const response = await fetch(filePath);
+                    const url = getResourceUrl(filePath);
+                    //const response = await fetch(filePath);
+                    const response = await fetch(url);
                     if (!response.ok) throw new Error(`文件加载失败: ${response.status}`);
                     const markdownText = await response.text();
                     chapterContentEl.innerHTML = marked.parse(markdownText);
