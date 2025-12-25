@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小说主题曲 - 在线聆听</title>
+    <script>
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?538b527676abf511e24c277ab751449c";
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-text-color: #e0e0e0;
+            --secondary-text-color: #a0a0a0;
+            --accent-color: #4dd0e1;
+            --border-color: #333;
+            --font-family-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-family-main);
+            background-color: var(--bg-color);
+            color: var(--primary-text-color);
+            line-height: 1.7;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 320px;
+            background-color: var(--surface-color);
+            padding: 2rem 1.5rem;
+            flex-shrink: 0;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+            z-index: 10;
+        }
+        .sidebar h2 {
+            font-size: 1.5rem;
+            color: var(--primary-text-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+            display: inline-block;
+        }
+        
+        #music-list a {
+            display: block;
+            text-decoration: none;
+            font-size: 0.95rem;
+            color: var(--secondary-text-color); 
+            padding: 0.6rem 1rem; 
+            border-radius: 6px;
+            transition: background-color 0.3s, color 0.3s;
+            margin-bottom: 0.25rem;
+            word-break: break-all;
+        }
+        #music-list a:hover {
+            background-color: rgba(77, 208, 225, 0.1);
+            color: var(--accent-color);
+        }
+        #music-list a.active {
+            background-color: var(--accent-color);
+            color: #121212;
+            font-weight: bold;
+        }
+        #music-list { list-style: none; }
+        #music-list .folder-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary-text-color);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            cursor: default;
+            padding-left: 0.5rem;
+        }
+        #music-list .folder-title:first-child {
+            margin-top: 0;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem 4rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .player-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .player-container h1 {
+            font-size: 2.2rem;
+            text-align: center;
+            color: var(--accent-color);
+            margin-bottom: 2.5rem;
+        }
+       
+        .player-container audio, .player-container video {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .loading-state {
+            text-align: center;
+            color: var(--secondary-text-color);
+            font-size: 1.2rem;
+            margin-top: 5rem;
+        }
+
+        .welcome-container {
+            text-align: center;
+            margin-top: 5rem;
+        }
+        .welcome-title {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-bottom: 0.75rem;
+        }
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: var(--secondary-text-color);
+            margin-top: 0;
+        }
+        
+        .content-footer { 
+            max-width: 800px; 
+            margin: 4rem auto 2rem auto; 
+            padding-top: 2rem; 
+            border-top: 1px solid var(--border-color); 
+            text-align: center; 
+            font-size: 0.9rem; 
+            color: var(--secondary-text-color); 
+        }
+        .content-footer p { 
+            margin-bottom: 0.5rem; 
+            line-height: 1.5; 
+            font-size: inherit; 
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--surface-color); }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; height: auto; overflow: auto; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); height: auto; max-height: 50vh; }
+            .main-content { padding: 2rem 1.5rem; overflow-y: visible; }
+            .player-container h1, .welcome-title { font-size: 1.8rem; }
+            .welcome-subtitle { font-size: 1.0rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h2>音乐目录</h2>
+        <ul id="music-list"></ul>
+    </aside>
+
+    <main class="main-content">
+        <div id="player-content" class="player-container">
+            <!-- Media player or welcome message will be inserted here -->
+        </div>
+        <footer class="content-footer">
+            <p>© 2025 AI范式进化. 保留所有权利。</p>            
+            <p>音乐创作不易，请尊重作者劳动成果。如需转载或分享，请务必注明出处。</p>
+        </footer>
+    </main>
+ 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Define GitHub repository constants
+            const GITHUB_USER = 'digital-era';
+            const GITHUB_REPO = 'AIPEMusic';
+            const API_BASE_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
+            const RAW_CONTENT_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/`;
+
+            // Get DOM elements
+            const musicListEl = document.getElementById('music-list');
+            const playerContentEl = document.getElementById('player-content');
+            
+            // --- KEY CHANGE 1: Create a mapping from URL param to Chinese title in filename ---
+            const novelTitleMap = {
+                'ZhiChengDecade': '智成十年',
+                // This map can be extended for future novels
+                // e.g., 'AIBusinessEmpire': 'AI商业帝国'
+            };
+
+            async function initializePage() {
+                await populateSidebar();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const novelParam = urlParams.get('novel');
+                const themeParam = urlParams.get('theme');
+
+                // Get the corresponding Chinese keyword from the map
+                const novelKeyword = novelTitleMap[novelParam];
+
+                if (novelKeyword && themeParam) {
+                    let themeKeyword = null;
+                    if (themeParam === 'opening') {
+                        themeKeyword = '男生版';
+                    } else if (themeParam === 'ending') {
+                        themeKeyword = '女生版';
+                    }
+
+                    if (themeKeyword) {
+                        // --- KEY CHANGE 2: Pass BOTH keywords to the search function ---
+                        const targetFilename = findFileInSidebar(novelKeyword, themeKeyword, 'mp4');
+
+                        if (targetFilename) {
+                            const targetLink = document.querySelector(`a[data-name="${targetFilename}"]`);
+                            if (targetLink) {
+                                const { path, type, name } = targetLink.dataset;
+                                loadMediaPlayer(path, type, name);
+                                updateActiveLink(targetLink);
+                                return; // Successfully loaded, exit the function
+                            }
+                        }
+                    }
+                }
+                
+                // Fallback: If parameters are invalid or file not found, show welcome message
+                displayWelcomeMessage();
+            }
+
+            /**
+             * --- KEY CHANGE 3: The search function now requires BOTH keywords to be present ---
+             * @param {string} novelKeyword - The Chinese novel title (e.g., "智成十年").
+             * @param {string} themeKeyword - The theme keyword (e.g., "男生版").
+             * @param {string} fileExtension - The file extension (e.g., "mp4").
+             * @returns {string|null} - The full filename or null if not found.
+             */
+            function findFileInSidebar(novelKeyword, themeKeyword, fileExtension) {
+                const links = document.querySelectorAll('#music-list a');
+                for (const link of links) {
+                    const filename = link.dataset.name;
+                    // Check if the filename contains BOTH keywords AND has the correct extension
+                    if (filename.includes(novelKeyword) && filename.includes(themeKeyword) && filename.endsWith(fileExtension)) {
+                        return filename;
+                    }
+                }
+                return null;
+            }
+
+            function displayWelcomeMessage() {
+                playerContentEl.innerHTML = `
+                    <div class="welcome-container">
+                        <h1 class="welcome-title">欢迎来到音乐播放中心</h1>
+                        <p class="welcome-subtitle">请从左侧目录中选择一首曲目进行播放。</p>
+                    </div>`;
+            }
+
+            async function fetchDirectoryContents(directory) {
+                try {
+                    const response = await fetch(API_BASE_URL + directory);
+                    if (!response.ok) throw new Error(`GitHub API error! status: ${response.status}`);
+                    const data = await response.json();
+                    return data.filter(item => item.name.toLowerCase().endsWith('.mp3') || item.name.toLowerCase().endsWith('.mp4'));
+                } catch (error) {
+                    console.error(`Failed to fetch directory '${directory}':`, error);
+                    return [];
+                }
+            }
+
+            async function populateSidebar() {
+                const directoriesToFetch = [
+                    { name: 'MP3 音频', path: 'mp3' }, 
+                    { name: 'MP4 视频', path: 'mp4' }
+                ];
+                
+                musicListEl.innerHTML = '<p style="color: var(--secondary-text-color);">正在加载目录...</p>';
+
+                let contentHtml = '';
+                for (const dir of directoriesToFetch) {
+                    const files = await fetchDirectoryContents(dir.path);
+                    if (files.length > 0) {
+                        contentHtml += `<li class="folder-title">${dir.name}</li>`;
+                        files.forEach(file => {
+                            const fileType = file.name.toLowerCase().endsWith('.mp3') ? 'audio' : 'video';
+                            contentHtml += `
+                                <li>
+                                    <a href="#" data-path="${file.path}" data-type="${fileType}" data-name="${file.name}">
+                                        ${file.name}
+                                    </a>
+                                </li>
+                            `;
+                        });
+                    }
+                }
+                
+                musicListEl.innerHTML = contentHtml || '<p style="color: var(--secondary-text-color);">未能加载任何音乐文件。</p>';
+            }
+
+            function loadMediaPlayer(filePath, fileType, fileName) {
+                const mediaUrl = RAW_CONTENT_BASE_URL + filePath;
+                
+                let playerHtml;
+                if (fileType === 'audio') {
+                    playerHtml = `<audio controls autoplay src="${mediaUrl}">您的浏览器不支持 audio 标签。</audio>`;
+                } else if (fileType === 'video') {
+                    playerHtml = `<video controls autoplay preload="auto" src="${mediaUrl}">您的浏览器不支持 video 标签。</video>`;
+                } else {
+                    playerHtml = '<p>不支持的文件类型。</p>';
+                }
+
+                playerContentEl.innerHTML = `
+                    <h1>${fileName}</h1>
+                    ${playerHtml}
+                `;
+            }
+
+            function updateActiveLink(targetLink) {
+                document.querySelectorAll('#music-list a').forEach(a => a.classList.remove('active'));
+                if (targetLink) {
+                    targetLink.classList.add('active');
+                }
+            }
+            
+            musicListEl.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A' && e.target.dataset.path) {
+                    e.preventDefault();
+                    
+                    const { path, type, name } = e.target.dataset;
+                    
+                    loadMediaPlayer(path, type, name);
+                    updateActiveLink(e.target);
+                }
+            });
+
+            // --- Start the page initialization process ---
+            initializePage();
+        });
+    </script>
+</body>
+</html>
