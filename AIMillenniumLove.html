@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《千年之恋》 - 在线阅读</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+      var _hmt = _hmt || [];
+      (function() {
+        var hm = document.createElement("script");
+        hm.src = "https://hm.baidu.com/hm.js?538b527676abf511e24c277ab751449c";
+        var s = document.getElementsByTagName("script")[0]; 
+        s.parentNode.insertBefore(hm, s);
+      })();
+    </script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-text-color: #e0e0e0;
+            --secondary-text-color: #a0a0a0;
+            --accent-color: #4dd0e1;
+            --border-color: #333;
+            --font-family-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-family-main);
+            background-color: var(--bg-color);
+            color: var(--primary-text-color);
+            line-height: 1.7;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: var(--surface-color);
+            padding: 2rem 1.5rem;
+            flex-shrink: 0;
+            overflow-y: auto;
+            border-right: 1px solid var(--border-color);
+            z-index: 10; /* 确保侧边栏在背景图之上 */
+        }
+        .sidebar h2 {
+            font-size: 1.5rem;
+            color: var(--primary-text-color);
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+            display: inline-block;
+        }
+        
+        .sidebar-intro a, 
+        #chapter-list a {
+            display: block;
+            text-decoration: none;
+            font-size: 1rem;
+            color: var(--secondary-text-color); 
+            padding: 0.5rem 1rem; 
+            border-radius: 6px;
+            transition: background-color 0.3s, color 0.3s;
+            margin-bottom: 0.25rem;
+        }
+        .sidebar-intro { margin-bottom: 1rem; }
+        .sidebar-intro a:hover, #chapter-list a:hover {
+            background-color: rgba(77, 208, 225, 0.1);
+            color: var(--accent-color);
+        }
+        .sidebar-intro a.active, #chapter-list a.active {
+            background-color: var(--accent-color);
+            color: #121212;
+            font-weight: bold;
+        }
+        #chapter-list { list-style: none; }
+        #chapter-list .season-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--secondary-text-color);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            cursor: default;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem 4rem;
+            overflow-y: auto;
+            position: relative; /* 为背景图定位提供基础 */
+        }
+
+        /* --- 新增：简介页背景图样式 --- */
+        .main-content.intro-background {
+            /*background-image: url('images/ZhiChengDecadeCover.png');*/
+            background-image: url('https://raw.githubusercontent.com/digital-era/AIPENovel/main/AIMillenniumLove/images/AIMillenniumLove1.png');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* 让背景图固定，滚动时产生视差效果 */
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        /* 当背景图存在时，调整内容容器的样式以提高可读性 */
+        .main-content.intro-background .chapter-container {
+            background-color: rgba(0, 0, 0, 0.6); /* 半透明黑色遮罩层 */
+            padding: 2.5rem;
+            border-radius: 8px;
+            margin-top: 4rem; /* 让内容块稍微向下偏移，避免紧贴顶部 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* 覆盖默认的文字和标题颜色 */
+        .main-content.intro-background .chapter-container,
+        .main-content.intro-background .chapter-container h1,
+        .main-content.intro-background .chapter-container h2,
+        .main-content.intro-background .chapter-container h3,
+        .main-content.intro-background .chapter-container h4 {
+            color: #f0f0f0; /* 将文字颜色改为亮灰色 */
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8); /* 添加文字阴影，使其更清晰 */
+        }
+
+        /* 覆盖强调文字的颜色 */
+        .main-content.intro-background .chapter-container strong {
+            color: #64ffda; /* 使用一个更亮的青色作为强调色 */
+        }
+        /* --- 新增样式结束 --- */
+        
+        .chapter-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .chapter-container h1, .chapter-container h2, .chapter-container h3, .chapter-container h4, .chapter-container h5 { margin: 1.5em 0 1em; color: var(--primary-text-color); }
+        .chapter-container h1 { font-size: 2.5rem; text-align: center; }
+        .chapter-container h2 { font-size: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: .3em; }
+        .chapter-container h3 { font-size: 1.5rem; color: var(--accent-color); text-align: center; margin-bottom: 2rem;}
+        .chapter-container h4 { font-size: 1.2rem; color: var(--secondary-text-color); border-bottom: 1px solid var(--border-color); padding-bottom: .3em; }
+        .chapter-container p { margin-bottom: 1.5rem; font-size: 1.05rem; text-align: justify; }
+        .chapter-container strong { color: var(--accent-color); font-weight: 600; }
+        .chapter-container hr { border: 0; height: 1px; background-image: linear-gradient(to right, rgba(0, 0, 0, 0), var(--border-color), rgba(0, 0, 0, 0)); margin: 3rem 0; }
+        .loading-state { text-align: center; color: var(--secondary-text-color); font-size: 1.2rem; margin-top: 5rem; }
+        
+        .content-footer { max-width: 800px; margin: 4rem auto 2rem auto; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.9rem; color: var(--secondary-text-color); }
+        .content-footer p { margin-bottom: 0.5rem; line-height: 1.5; font-size: inherit; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--surface-color); }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+        @media (max-width: 768px) {
+            body { flex-direction: column; height: auto; overflow: auto; }
+            .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); height: auto; }
+            .main-content { padding: 2rem 1.5rem; overflow-y: visible; }
+            .main-content.intro-background .chapter-container { margin-top: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h2>《千年之恋》目录</h2>
+        <div class="sidebar-intro">
+            <a href="#" id="intro-link">阅读简介</a>
+        </div>
+        <ul id="chapter-list"></ul>
+    </aside>
+
+    <main class="main-content">
+        <div id="chapter-content" class="chapter-container"></div>
+        <footer class="content-footer">
+            <p>© 2025 AI范式进化. 保留所有权利。</p>            
+            <p>小说创作不易，请尊重作者劳动成果。如需转载或分享，请务必注明出处。</p>
+        </footer>
+    </main>
+
+    
+    <script>
+        // 定义常量
+        const GITHUB_USER = 'digital-era';
+        const GITHUB_REPO = 'AIPENovel';
+        const DATA_PATH = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/AIMillenniumLove`;
+        const DATA_TITLE_PATH = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/AIMillenniumLove/AIMillenniumLoveTitle.md`;
+        //const DATA_PATH = `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@main/AIMillenniumLove`;
+        //const DATA_TITLE_PATH = `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@main/AIMillenniumLove/AIMillenniumLoveTitle.md`;
+
+        /**
+         * 自定义函数：将中文数字字符串转换为阿拉伯数字。
+         */
+        function chineseToArabic(cnStr) {
+            const cnNumMap = {'零': 0, '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '七': 7, '八': 8, '九': 9};
+            const cnUnitMap = {'十': 10, '百': 100, '千': 1000};
+
+            if (cnStr.startsWith('十')) {
+                cnStr = '一' + cnStr;
+            }
+
+            let result = 0;
+            let sectionNum = 0;
+            for (const char of cnStr) {
+                if (char in cnNumMap) {
+                    sectionNum = cnNumMap[char];
+                } else if (char in cnUnitMap) {
+                    const unit = cnUnitMap[char];
+                    result += sectionNum * unit;
+                    sectionNum = 0;
+                }
+            }
+            result += sectionNum;
+            return result;
+        }
+
+        /**
+         * 异步函数：获取并解析标题文件，生成小说配置对象
+         */
+        async function generateNovelConfig() {
+            try {
+                const response = await fetch(DATA_TITLE_PATH);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const text = await response.text();
+        
+                const novelConfig = {
+                    introductionFile: `${DATA_PATH}/AIMillenniumLove0.md`,
+                    seasons: [
+                        { title: "千年之恋", chapters: [] },
+                    ]
+                };
+        
+                // 【关键修改 1】优化正则表达式
+                // 1.  使用 (.*?) 来非贪婪地捕获标题
+                // 2.  使用 $ 来匹配行尾，而不是 \s
+                // 3.  添加 m 标志，使 ^ 和 $ 能匹配多行的开头和结尾
+                const regex = /第(.+?)章：(.*?)$/gm;
+
+                let match;
+                while ((match = regex.exec(text)) !== null) {
+                    const chineseNumber = match[1];
+                    
+                    // 【关键修改 2】清理捕获到的标题字符串
+                    // 1. trim() 移除首尾可能存在的空格
+                    // 2. replace() 移除所有的星号
+                    const cleanTitle = match[2].trim().replace(/\*/g, '');
+
+                    // 使用清理后的标题构建最终标题
+                    const fullTitle = `第${chineseNumber}章：${cleanTitle}`;
+                    
+                    const arabicNumber = chineseToArabic(chineseNumber);
+        
+                    const chapter = {
+                        title: fullTitle, // 使用修正后的 fullTitle
+                        file: `${DATA_PATH}/AIMillenniumLove${arabicNumber}.md`
+                    };
+        
+                    if (arabicNumber <= 13) novelConfig.seasons[0].chapters.push(chapter);
+                    else if (arabicNumber <= 26) novelConfig.seasons[1].chapters.push(chapter);
+                    else novelConfig.seasons[2].chapters.push(chapter);
+                }
+        
+                novelConfig.seasons.forEach(season => {
+                    season.chapters.sort((a, b) => {
+                        const numA = parseInt(a.file.match(/(\d+)\.md$/)[1]);
+                        const numB = parseInt(b.file.match(/(\d+)\.md$/)[1]);
+                        return numA - numB;
+                    });
+                });
+        
+                return novelConfig;
+        
+            } catch (error) {
+                console.error('获取或处理小说标题失败:', error);
+                return null;
+            }
+        }
+
+        /**
+         * 页面加载完成后的主入口
+         */
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 获取DOM元素
+            const chapterListEl = document.getElementById('chapter-list');
+            const chapterContentEl = document.getElementById('chapter-content');
+            const mainContentEl = document.querySelector('.main-content');
+            const introLink = document.getElementById('intro-link');
+
+            // 等待配置对象生成完成
+            const novelConfig = await generateNovelConfig();
+
+            // 如果配置加载失败，则显示错误信息并终止后续操作
+            if (!novelConfig) {
+                chapterContentEl.innerHTML = `<p class="loading-state">目录加载失败，请刷新页面重试。</p>`;
+                return;
+            }
+
+            function populateSidebar() {
+                novelConfig.seasons.forEach(season => {
+                    const seasonTitle = document.createElement('li');
+                    seasonTitle.className = 'season-title';
+                    seasonTitle.textContent = season.title;
+                    chapterListEl.appendChild(seasonTitle);
+
+                    season.chapters.forEach(chapter => {
+                        const listItem = document.createElement('li');
+                        const link = document.createElement('a');
+                        link.href = "#";
+                        link.textContent = chapter.title;
+                        link.dataset.file = chapter.file; 
+                        listItem.appendChild(link);
+                        chapterListEl.appendChild(listItem);
+                    });
+                });
+            }
+
+            async function loadContent(filePath) {
+                chapterContentEl.innerHTML = `<p class="loading-state">正在加载内容...</p>`;
+                mainContentEl.scrollTop = 0; 
+
+                try {
+                    const response = await fetch(filePath);
+                    if (!response.ok) throw new Error(`文件加载失败: ${response.status}`);
+                    const markdownText = await response.text();
+                    chapterContentEl.innerHTML = marked.parse(markdownText);
+                } catch (error) {
+                    console.error("加载文件时出错:", error);
+                    chapterContentEl.innerHTML = `<p class="loading-state">内容加载失败，请检查文件路径或网络连接。</p>`;
+                }
+            }
+
+            function updateActiveLink(targetLink) {
+                document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                if (targetLink) targetLink.classList.add('active');
+            }
+            
+            chapterListEl.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A' && e.target.dataset.file) {
+                    e.preventDefault();
+                    const filePath = e.target.dataset.file;
+                    loadContent(filePath);
+                    updateActiveLink(e.target);
+                    mainContentEl.classList.remove('intro-background');
+                }
+            });
+
+            introLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadContent(novelConfig.introductionFile);
+                updateActiveLink(e.target);
+                mainContentEl.classList.add('intro-background');
+            });
+
+            // --- 初始化页面 ---
+            populateSidebar();
+            loadContent(novelConfig.introductionFile);
+            updateActiveLink(introLink);
+            mainContentEl.classList.add('intro-background');
+        });
+    </script>
+</body>
+</html>
