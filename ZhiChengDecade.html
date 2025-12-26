@@ -176,6 +176,7 @@
         // 定义常量
         const GITHUB_USER = 'digital-era';
         const GITHUB_REPO = 'AIPENovel';
+		const GITHUB_BRANCH= 'main';
         const DATA_PATH = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/ZhiChengDecade`;
         const DATA_TITLE_PATH = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/ZhiChengDecade/ZhiChengDecadeTitle.md`;
         //const DATA_PATH = `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@main/ZhiChengDecade`;
@@ -193,7 +194,9 @@
 		 */
 		function getResourceUrl(filename) {
 		    // 基础路径结构: User/Repo/Branch/File
-		    const filePath = DATA_TITLE_PATH;
+		    //const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
+			//因为传递过来的filename为完整url，所以要获取文件名
+			const filePath = new URL(DATA_TITLE_PATH).pathname.split('/').pop();
 		    
 		    let finalUrl;
 		    if (typeof gitproxy !== 'undefined' && gitproxy === true) {
