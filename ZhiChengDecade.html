@@ -195,8 +195,9 @@
 		function getResourceUrl(filename) {
 		    // 基础路径结构: User/Repo/Branch/File
 		    //const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
-			//因为传递过来的filename为完整url，所以要获取文件名
-			const filePath = new URL(DATA_TITLE_PATH).pathname.split('/').pop();
+			//因为传递过来的filename为完整url，所以要先获取文件名
+			filename = new URL(DATA_TITLE_PATH).pathname.split('/').pop();
+			const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
 		    
 		    let finalUrl;
 		    if (typeof gitproxy !== 'undefined' && gitproxy === true) {
