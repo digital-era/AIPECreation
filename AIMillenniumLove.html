@@ -247,7 +247,7 @@
          */
         async function generateNovelConfig() {
             try {
-                const url = getResourceUrl(GUARDIAN_CONFIG[key].file);
+                const url = getResourceUrl(DATA_TITLE_PATH);
                 //const response = await fetch(DATA_TITLE_PATH);
                 const response = await fetch(url);
                 if (!response.ok) {
