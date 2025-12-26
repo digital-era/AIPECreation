@@ -365,36 +365,43 @@
                 }
             }
 
-            async function populateSidebar() {
-                const directoriesToFetch = [
-                    { name: 'MP3 音频', path: 'mp3' }, 
-                    { name: 'MP4 视频', path: 'mp4' }
-                ];
-                
-                musicListEl.innerHTML = '<p style="color: var(--secondary-text-color);">正在加载目录...</p>';
-
-                let contentHtml = '';
-                for (const dir of directoriesToFetch) {
-                    //const files = await fetchDirectoryContents(dir.path);
-					const files = await getDirectoryList(dir.path);
-                    if (files.length > 0) {
-                        contentHtml += `<li class="folder-title">${dir.name}</li>`;
-                        files.forEach(file => {
-                            const fileType = file.name.toLowerCase().endsWith('.mp3') ? 'audio' : 'video';
-                            contentHtml += `
-                                <li>
-                                    <a href="#" data-path="${file.path}" data-type="${fileType}" data-name="${file.name}">
-                                        ${file.name}
-                                    </a>
-                                </li>
-                            `;
-                        });
-                    }
-                }
-                
-                musicListEl.innerHTML = contentHtml || '<p style="color: var(--secondary-text-color);">未能加载任何音乐文件。</p>';
-            }
-
+	      	 async function populateSidebar() {
+			    const directoriesToFetch = [
+			        { name: 'MP3 音频', path: 'mp3' }, 
+			        { name: 'MP4 视频', path: 'mp4' }
+			    ];
+			    
+			    musicListEl.innerHTML = '<p style="color: var(--secondary-text-color);">正在加载目录...</p>';
+			
+			    let contentHtml = '';
+			    for (const dir of directoriesToFetch) {
+			        const rawFiles = await getDirectoryList(dir.path); // 获取原始列表
+			        
+			        // ✅ 新增过滤逻辑：只保留 mp3 和 mp4 结尾的文件
+			        // 使用 Array.isArray 确保 rawFiles 是数组（防止API报错返回null时崩溃）
+			        const files = Array.isArray(rawFiles) ? rawFiles.filter(item => {
+			            const name = item.name.toLowerCase();
+			            return name.endsWith('.mp3') || name.endsWith('.mp4');
+			        }) : [];
+			
+			        if (files.length > 0) {
+			            contentHtml += `<li class="folder-title">${dir.name}</li>`;
+			            files.forEach(file => {
+			                const fileType = file.name.toLowerCase().endsWith('.mp3') ? 'audio' : 'video';
+			                contentHtml += `
+			                    <li>
+			                        <a href="#" data-path="${file.path}" data-type="${fileType}" data-name="${file.name}">
+			                            ${file.name}
+			                        </a>
+			                    </li>
+			                `;
+			            });
+			        }
+			    }
+			    
+			    musicListEl.innerHTML = contentHtml || '<p style="color: var(--secondary-text-color);">未能加载任何音乐文件。</p>';
+			}
+			
             function loadMediaPlayer(filePath, fileType, fileName) {
                 const mediaUrl = RAW_CONTENT_BASE_URL + filePath;
                 
