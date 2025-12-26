@@ -183,9 +183,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Define GitHub repository constants
             const GITHUB_USER = 'digital-era';
-            const GITHUB_REPO = 'AIPEMusic';
+            const GITHUB_REPO = 'AIPEMusic';					
+			const GITHUB_BRANCH= 'main';
             const API_BASE_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/`;
-            const RAW_CONTENT_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/`;
+            const RAW_CONTENT_BASE_URL = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/`;	
 
             // Get DOM elements
             const musicListEl = document.getElementById('music-list');
@@ -197,27 +198,35 @@
 			// 替换为你刚才部署的 Cloudflare Worker 地址 (末尾不要带斜杠)
 			const PROXY_BASE_URL = "https://githubproxy.aivibeinvest.com"; 
 			
-			/**
-			 * 通用地址生成函数
-			 * @param {string} filename - 文件名
-			 * @returns {string} 最终的请求 URL
-			 */
-			function getResourceUrl(filename) {
-			    // 基础路径结构: User/Repo/Branch/File
-			    const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
-			    
-			    let finalUrl;
-			    if (typeof gitproxy !== 'undefined' && gitproxy === true) {
-			        // 走代理: https://proxy.com/User/Repo/Branch/File
-			        finalUrl = `${PROXY_BASE_URL}/${filePath}`;
-			    } else {
-			        // 走原生: https://raw.githubusercontent.com/User/Repo/Branch/File
-			        finalUrl = `https://raw.githubusercontent.com/${filePath}`;
-			    }
-			    
-			    // 添加时间戳防止缓存
-			    return `${finalUrl}?t=${Date.now()}`;
-			}
+        /**
+		 * 通用地址生成函数
+		 * @param {string} filename - 文件名
+		 * @returns {string} 最终的请求 URL
+		 */
+		function getResourceUrl(filename) {
+		    // 基础路径结构: User/Repo/Branch/File
+		    //const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
+			//因为传递过来的filename为完整url，所以要先获取文件名
+			realfilename = new URL(filename).pathname.split('/').pop();
+			const urlObj = new URL(url);
+			// urlObj.pathname 得到 "/username/repository/main/folder/file.txt"			
+			// 1. lastIndexOf('/') 找到最后一个斜杠的位置
+			// 2. substring(1, ...) 从索引1开始截取（去掉开头的斜杠），直到最后一个斜杠（包含或不包含看需求）
+			const path = urlObj.pathname.substring(1, urlObj.pathname.lastIndexOf('/') + 1);
+			const filePath = `${path}${realfilename}`;
+		    
+		    let finalUrl;
+		    if (typeof gitproxy !== 'undefined' && gitproxy === true) {
+		        // 走代理: https://proxy.com/User/Repo/Branch/File
+		        finalUrl = `${PROXY_BASE_URL}/${filePath}`;
+		    } else {
+		        // 走原生: https://raw.githubusercontent.com/User/Repo/Branch/File
+		        finalUrl = `https://raw.githubusercontent.com/${filePath}`;
+		    }
+		    
+		    // 添加时间戳防止缓存
+		    return `${finalUrl}?t=${Date.now()}`;
+		}
 
 		    /**
 			 * 获取指定目录下的文件列表
