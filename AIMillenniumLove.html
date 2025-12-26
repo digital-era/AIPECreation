@@ -178,6 +178,8 @@
         // 定义常量
         const GITHUB_USER = 'digital-era';
         const GITHUB_REPO = 'AIPENovel';
+		const GITHUB_BRANCH= 'main';
+		const GITHUB_DIR= 'AIMillenniumLove';
         const DATA_PATH = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/AIMillenniumLove`;
         const DATA_TITLE_PATH = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/AIMillenniumLove/AIMillenniumLoveTitle.md`;
         //const DATA_PATH = `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@main/AIMillenniumLove`;
@@ -189,14 +191,17 @@
 		// 替换为你刚才部署的 Cloudflare Worker 地址 (末尾不要带斜杠)
 		const PROXY_BASE_URL = "https://githubproxy.aivibeinvest.com"; 
 		
-		/**
+        /**
 		 * 通用地址生成函数
 		 * @param {string} filename - 文件名
 		 * @returns {string} 最终的请求 URL
 		 */
 		function getResourceUrl(filename) {
 		    // 基础路径结构: User/Repo/Branch/File
-		    const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
+		    //const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
+			//因为传递过来的filename为完整url，所以要先获取文件名
+			realfilename = new URL(filename).pathname.split('/').pop();
+			const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${GITHUB_DIR}/${realfilename}`;
 		    
 		    let finalUrl;
 		    if (typeof gitproxy !== 'undefined' && gitproxy === true) {
