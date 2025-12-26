@@ -193,7 +193,7 @@
 		 */
 		function getResourceUrl(filename) {
 		    // 基础路径结构: User/Repo/Branch/File
-		    const filePath = `${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${filename}`;
+		    const filePath = DATA_TITLE_PATH;
 		    
 		    let finalUrl;
 		    if (typeof gitproxy !== 'undefined' && gitproxy === true) {
